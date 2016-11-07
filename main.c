@@ -124,6 +124,13 @@
  		}
  	}
 
+ 	// Archivo sobre el cual se imprimira el resultado
+ 	FILE *salida = NULL;
+ 	if (argc == 4){
+ 		//Modo read ??? deberia crearlo
+ 		salida = fopen(argv[optind], "r");
+ 	}
+
  	// Aqui empieza la diversion
 
  	return 0;

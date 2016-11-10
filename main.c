@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcnt1.h>
+#include <fcntl.h>
 
 #include <errno.h>
 #include <ctype.h>
@@ -21,8 +21,8 @@
 
 
 // Finaliza el programa si no posee la cantidad de argumentos necesarios, despues de indicar la forma correcta
- void numeroArgumentos(int cantidad){
-    if ((cantidad < 1) || (cantidad > 4)){
+void numeroArgumentos(int cantidad){
+    if ((cantidad < 1) || (cantidad > 6)){
         printf("Violacion de parametros \n");
         printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
         exit(1);
@@ -30,7 +30,7 @@
  }
 
  int es_dir(char* dir){
-
+    printf("Recibi: '%s'\n", dir);
  	struct stat statbuf;
 
  	if (lstat(dir, &statbuf) == 1){
@@ -54,21 +54,21 @@
 
  	int hflag = 0;
  	int nvalue = 0;
- 	char *dvalue = NULL;
+ 	char *dvalue = NULL;  
  	int n;
 
  	opterr = 0;
-
- 	while ((n = getopt(argc,argv, "hnd:")) != -1){
+    
+ 	while ((n = getopt(argc,argv, "hd:n:")) != -1){
  		switch(n){
- 			case'h':
+ 			case 'h':
  			{
  				hflag = 1;
  				break;
  			}
  			case 'd':
  			{
- 				dvalue = optarg;
+                dvalue = optarg;
  				break;
  			}
  			case 'n':
@@ -95,7 +95,7 @@
  	}
 
  	if ((hflag == 1) && (argc > 2)) {
- 		fprintf(stderr, "La opcion '-h' es excluyente del resto de las opciones%s\n", );
+ 		fprintf(stderr, "La opcion '-h' es excluyente del resto de las opciones\n");
  		exit(1);
  	}
 
@@ -109,27 +109,31 @@
         exit(1);
  	}
 
+    //printf("Cantidad de hilos: %i\n", nvalue);
  	if (nvalue == 0){
  		nvalue = 1;
  	}
 
  	if (dvalue == NULL){
- 		// Se trabaja con el directorio actual
- 	} else {
- 		// Se trabaja con el directorio dado
- 		if (!es_dir(dvalue))
- 		{
- 			printf("El argumento %s no es un directorio.\n", dvalue);
- 			exit(1);
- 		}
+        char dirActual = '.';
+        dvalue = &dirActual;
  	}
 
+	// Se trabaja con el directorio dado
+	if (!es_dir(dvalue))
+	{
+		printf("El argumento %s no es un directorio.\n", dvalue);
+		exit(1);
+	}
+
+    printf("Llegue aqui\n");
+
  	// Archivo sobre el cual se imprimira el resultado
- 	FILE *salida = NULL;
- 	if (argc == 4){
+ 	//FILE *salida = NULL;
+ 	//if (argc == 4){
  		//Modo read ??? deberia crearlo
- 		salida = fopen(argv[optind], "r");
- 	}
+ 	//	salida = fopen(argv[optind], "r");
+ 	//}
 
  	// Aqui empieza la diversion
 

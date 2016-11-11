@@ -117,12 +117,13 @@ void numeroArgumentos(int cantidad){
  	if (dvalue == NULL){
         char dirActual = '.';
         dvalue = &dirActual;
+        *(dvalue+1) = '\0';
  	}
 
 	// Se trabaja con el directorio dado
 	if (!es_dir(dvalue))
 	{
-		printf("El argumento %s no es un directorio.\n", dvalue);
+		printf("El argumento '%s' no es un directorio.\n", dvalue);
 		exit(1);
 	}
 

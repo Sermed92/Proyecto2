@@ -6,19 +6,7 @@
  * Descripción:   
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <errno.h>
-#include <ctype.h>
-#include <pthread.h>
-
+#include "cabecera.h"
 
 // Finaliza el programa si no posee la cantidad de argumentos necesarios, despues de indicar la forma correcta
 void numeroArgumentos(int cantidad){

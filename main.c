@@ -3,129 +3,144 @@
  * Autores:
  *          Sergio Medina 09-11259
  *          Lucio Mederos 13-10856
- * Descripción:   
  */
 
 #include "cabecera.h"
 
-// Finaliza el programa si no posee la cantidad de argumentos necesarios, despues de indicar la forma correcta
-void numeroArgumentos(int cantidad){
-    if ((cantidad < 1) || (cantidad > 6)){
-        printf("Violacion de parametros \n");
-        printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
-        exit(1);
-    }
- }
+int main(int argc, char** argv){
 
- int es_dir(char* dir){
-    printf("Recibi: '%s'\n", dir);
- 	struct stat statbuf;
+	// int a = es_directorio("Pracicas");
+	// printf("%d\n",a);
+	// a = es_directorio("/home/luciod/Documentos/Sistemas de Bases de Datos/Practicas");
+	// printf("%d\n",a);
+	// exit(0);
 
- 	if (lstat(dir, &statbuf) == 1){
- 		fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s\n", dir, strerror(errno));
- 		exit(1);
- 	}
+	numeroArgumentos(argc);
 
- 	// Se verifica si es directorio
- 	if (statbuf.st_mode & S_IFDIR){
- 		// Es directorio
- 		return 1;
- 	} else {
- 		// No es directorio
- 		return 0;
- 	}
- }
+	int hflag = 0;
+	int nvalue = 0;
+	char *dvalue = NULL;  
+	int n;
 
- int main(int argc, char** argv){
+	opterr = 0;
 
- 	numeroArgumentos(argc);
+	while ((n = getopt(argc,argv, "hd:n:")) != -1){
+		switch(n){
+			case 'h':
+		{
+			hflag = 1;
+				break;
+			}
+			case 'd':
+			{
+                	dvalue = optarg;
+			break;
+			}
+			case 'n':
+			{
+				nvalue = atoi(optarg);
+				break;
+			}
+			case '?':
+			{
+				if (optopt == 'n'){
+					fprintf(stderr, "Opcion -%c requiere un argumactualo.\n", optopt);
+				} else if (isprint(optopt)){
+					fprintf(stderr, "Opcion desconocida '-%c'.\n", optopt);
+				} else {
+					fprintf(stderr, "Caracter desconocido '\\x%x'.\n", optopt);
+				}
+				return 1;
+			}
+			default:
+			{
+				abort();
+			}
+		}
+	}
 
- 	int hflag = 0;
- 	int nvalue = 0;
- 	char *dvalue = NULL;  
- 	int n;
-
- 	opterr = 0;
-    
- 	while ((n = getopt(argc,argv, "hd:n:")) != -1){
- 		switch(n){
- 			case 'h':
- 			{
- 				hflag = 1;
- 				break;
- 			}
- 			case 'd':
- 			{
-                dvalue = optarg;
- 				break;
- 			}
- 			case 'n':
- 			{
- 				nvalue = atoi(optarg);
- 				break;
- 			}
- 			case '?':
- 			{
- 				if (optopt == 'n'){
- 					fprintf(stderr, "Opcion -%c requiere un argumento.\n", optopt);
- 				} else if (isprint(optopt)){
- 					fprintf(stderr, "Opcion desconocida '-%c'.\n", optopt);
- 				} else {
- 					fprintf(stderr, "Caracter desconocido '\\x%x'.\n", optopt);
- 				}
- 				return 1;
- 			}
- 			default:
- 			{
- 				abort();
- 			}
- 		}
- 	}
-
- 	if ((hflag == 1) && (argc > 2)) {
- 		fprintf(stderr, "La opcion '-h' es excluyente del resto de las opciones\n");
- 		exit(1);
- 	}
-
- 	if (hflag == 1){
- 		printf("UsoDisco Usage:\n");
-        printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
-        printf("-h: Muestra por pantalla un mensaje de ayuda, excluyente del resto de opciones\n");
-        printf("-n i: Nivel de concurrencia solicitado (uno por defecto)\n");
-        printf("-d directorio: Directorio desde donde calcula el espacio utilizado (actual por defecto)\n");
-        printf("salida: Archivo con lista de directorios y el espacio ocupado por los archivos regulares (salida estandar por defecto)\n");
-        exit(1);
- 	}
-
-    //printf("Cantidad de hilos: %i\n", nvalue);
- 	if (nvalue == 0){
- 		nvalue = 1;
- 	}
-
- 	if (dvalue == NULL){
-        char dirActual = '.';
-        dvalue = &dirActual;
-        *(dvalue+1) = '\0';
- 	}
-
-	// Se trabaja con el directorio dado
-	if (!es_dir(dvalue))
-	{
-		printf("El argumento '%s' no es un directorio.\n", dvalue);
+	if ((hflag == 1) && (argc > 2)) {
+		fprintf(stderr, "La opcion '-h' es excluyactuale del resto de las opciones\n");
 		exit(1);
 	}
 
-    printf("Llegue aqui\n");
+	if (hflag == 1){
+		printf("UsoDisco Usage:\n");
+        printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
+        printf("-h: Muestra por pantalla un mensaje de ayuda, excluyactuale del resto de opciones\n");
+        printf("-n i: Nivel de concurrencia solicitado (uno por defecto)\n");
+        printf("-d directorio: directorio desde donde calcula el espacio utilizado (actual por defecto)\n");
+        printf("salida: Archivo con lista de directorios y el espacio ocupado por los archivos regulares (salida estandar por defecto)\n");
+        exit(1);
+	}
 
- 	// Archivo sobre el cual se imprimira el resultado
- 	//FILE *salida = NULL;
- 	//if (argc == 4){
- 		//Modo read ??? deberia crearlo
- 	//	salida = fopen(argv[optind], "r");
- 	//}
+//printf("Cantidad de hilos: %i\n", nvalue);
+	if (nvalue == 0){
+		nvalue = 1;
+	}
 
- 	// Aqui empieza la diversion
+	if (dvalue == NULL){
+		// si se toma como default la raiz
+		// char directorioActual = '.';
+		// dvalue = &directorioActual;
+		// *(dvalue+1) = '\0';
 
- 	return 0;
+		// si se toma como default el directorio actual
+		
+		char directorio_actual[BUFSIZ];
+		char *cp;
+		cp = getcwd(directorio_actual, sizeof(directorio_actual));
+		if (cp == NULL) {
+			printf("Error obteniendo el directorio actual\n");
+			exit(1);
+		}
+		dvalue = directorio_actual;
+	}
 
- }
+	//strcat(dvalue,"/");
+	agregar_slash(dvalue);
+	// Se trabaja con el directorio dado
+	if (!es_directorio(dvalue))
+	{
+		printf("El argumento '%s' no es un directorio\n", dvalue);
+		exit(1);
+	}
+	else {
+		printf("El argumento '%s' si es un directorio\n", dvalue);
+	}
+
+	// Archivo sobre el cual se imprimira el resultado
+	//salida = NULL;
+	// if (argc == 4){
+	// 	//Modo write lo crea
+	// 	salida = fopen(argv[optind], "w");
+	// 	printf("abro archivo %s/n",argv[optind]);
+	// }
+
+	// Aqui empieza la diversion
+	cabeza = NULL;
+	cola = NULL;
+	//dvalue = agregar_slash(dvalue);
+	printf("Trabajo con: %s\n",dvalue);
+	
+	procesar_directorio(dvalue);
+	//printf("cabeza%s\n",cabeza->directorio);
+	while (cabeza != NULL) {
+		procesar_directorio(desencolar());
+	}
+
+	// Prueba de cola
+	// encolar("hola");
+	// encolar("chao");
+	// encolar("nocwn");
+	// encolar("nvofnv");
+	// encolar("1");
+
+	// printf("directorios:\n");
+	// while (cabeza != NULL)
+	// {
+	// 	printf("%s\n",desencolar());
+	// }
+	return 0;
+
+}

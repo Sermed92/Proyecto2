@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	// printf("%d\n",a);
 	// a = es_directorio("/home/luciod/Documentos/Sistemas de Bases de Datos/Practicas");
 	// printf("%d\n",a);
-	// exit(0);
+	//  exit(0);
 
 	numeroArgumentos(argc);
 

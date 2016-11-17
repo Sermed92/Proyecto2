@@ -38,11 +38,12 @@ int es_directorio(char* direccion){
 	// }
 
 	// return 0;
-	//printf("Recibo %s\n", direccion);
+	printf("Recibo %s\n", direccion);
 
 	DIR *directorio;
 	if ((directorio = opendir(direccion)) != NULL) {
 		closedir(directorio);
+		printf("Si es directorio %s\n", direccion);
 		return 1;
 	}
 	else {
@@ -92,61 +93,57 @@ void agregar_slash(char *direccion) {
 }
 
 void procesar_directorio(char *direccion) {
-	// char *string_aux = strdup(raizN);
-	// printf("Auxiliar %s", string_aux);
+	//char *d = agregar_slash(direccion);
+	// char *d = direccion;
+	// agregar_slash(d);
+	// printf("Direccion: %s\n", d);
 	// DIR *directorio;
 	// struct dirent *actual;
 
-	// if ((directorio = opendir(direccion)) != NULL) {
+	// char *auxiliar = strdup(d);
+	// if((directorio = opendir(auxiliar)) != NULL) {
 	// 	while ((actual = readdir(directorio)) != NULL) {
 	// 		if (!es_oculto(actual -> d_name)) {
-
-	// 			// char slash[2] = "/\0";
-
-	// 			// strcat(&slash, actual -> d_name);
-	// 			strcat(direccion,actual -> d_name);
-
-	// 			printf("No es oculto %s\n", direccion);
-
-	// 			if (es_directorio(actual -> d_name)) {
-	// 				// Si lo encontrado es un directorio se encola
-	// 				printf("Encolo %s\n", actual -> d_name);
-	// 				encolar(actual -> d_name);
+	// 			strcat(auxiliar, actual -> d_name);
+	// 			printf("Proceso: %s\n",auxiliar);
+	// 			if (!es_directorio(auxiliar)) {
+	// 				//Se procesa el archivo cuya direccion esta en auxiliar
+	// 				printf("A: %s\n", auxiliar);
+	// 			} else {
+	// 				// Si es directorio se encola
+	// 				encolar(auxiliar);
 	// 			}
-	// 			else {
-	// 				printf("%s%s\n",direccion,actual -> d_name);
-	// 				// Procesar archivo
-	// 			}
+	// 			auxiliar = strdup(d);
 	// 		}
 	// 	}
-	// 	closedir(directorio);
+	// closedir(directorio);
+	// } else {
+
 	// }
-	// else {
-	// 	printf("No se pudo abrir directorio %s\n", direccion);
-	// 	exit(1);
-	// }
-	//char *d = agregar_slash(direccion);
-	char *d = direccion;
-	agregar_slash(d);
-	printf("Direccion: %s\n", d);
+
+	agregar_slash(direccion);
+
 	DIR *directorio;
 	struct dirent *actual;
-
-	char *auxiliar = strdup(d);
-	if((directorio = opendir(auxiliar)) != NULL) {
-		while ((actual = readdir(directorio)) != NULL) {
-			if (!es_oculto(actual -> d_name)) {
+	
+	char *auxiliar = strdup(direccion);
+	
+	if ((directorio = opendir(auxiliar)) != NULL){
+		while ((actual = readdir(directorio)) != NULL){
+			if(!es_oculto(actual -> d_name)) {
 				strcat(auxiliar, actual -> d_name);
-				printf("Proceso: %s\n",auxiliar);
-				if (!es_directorio(auxiliar)) {
-					//Se procesa el archivo cuya direccion esta en auxiliar
-					printf("A: %s\n", auxiliar);
+				printf("Proceso: %s\n", auxiliar);				
+				if (!es_directorio(auxiliar)){
+					//Se procesa el archivo 
+					printf("A: %s \n", auxiliar);
 				} else {
-					// Si es directorio se encola
+					//Es directorio
 					encolar(auxiliar);
 				}
-				auxiliar = strdup(d);
+	 			auxiliar = strdup(direccion);				
 			}
 		}
+		closedir(directorio);
 	}
+
 }

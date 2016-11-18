@@ -9,12 +9,6 @@
 
 int main(int argc, char** argv){
 
-	// int a = es_directorio("Pracicas");
-	// printf("%d\n",a);
-	// a = es_directorio("/home/luciod/Documentos/Sistemas de Bases de Datos/Practicas");
-	// printf("%d\n",a);
-	//  exit(0);
-
 	numeroArgumentos(argc);
 
 	int hflag = 0;
@@ -80,11 +74,6 @@ int main(int argc, char** argv){
 	}
 
 	if (dvalue == NULL){
-		// si se toma como default la raiz
-		// char directorioActual = '.';
-		// dvalue = &directorioActual;
-		// *(dvalue+1) = '\0';
-
 		// si se toma como default el directorio actual
 		
 		char directorio_actual[BUFSIZ];
@@ -97,8 +86,8 @@ int main(int argc, char** argv){
 		dvalue = directorio_actual;
 	}
 
-	//strcat(dvalue,"/");
 	agregar_slash(dvalue);
+
 	// Se trabaja con el directorio dado
 	if (!es_directorio(dvalue))
 	{
@@ -129,18 +118,6 @@ int main(int argc, char** argv){
 		procesar_directorio(desencolar());
 	}
 
-	// Prueba de cola
-	// encolar("hola");
-	// encolar("chao");
-	// encolar("nocwn");
-	// encolar("nvofnv");
-	// encolar("1");
-
-	// printf("directorios:\n");
-	// while (cabeza != NULL)
-	// {
-	// 	printf("%s\n",desencolar());
-	// }
 	return 0;
 
 }

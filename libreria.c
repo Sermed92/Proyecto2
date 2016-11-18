@@ -114,7 +114,7 @@ void procesar_directorio(char *direccion) {
 		printf("Error al abrir directorio %s\n", direccion);
 		exit(1);
 	} else {
-		for (int i = 0; i < n; i++)
+		for (i = 0; i < n; i++)
 		{
 	
 			if (!es_oculto(lista[i] -> d_name)) {

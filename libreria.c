@@ -1,4 +1,4 @@
-#include "cabecera.h"
+#include "libreria.h"
 
 // Finaliza el programa si no posee la cantidad de argumentos necesarios, despues de indicar la forma correcta
 void numeroArgumentos(int cantidad){

@@ -5,10 +5,11 @@
  *          Lucio Mederos 13-10856
  */
 
-#include "cabecera.h"
+#include "libreria.h"
 
 int main(int argc, char** argv){
 
+    // Se verifican los argumentos
 	numeroArgumentos(argc);
 
 	int hflag = 0;
@@ -20,6 +21,7 @@ int main(int argc, char** argv){
 
 	opterr = 0;
 
+    // Se procede a procesar las opciones
 	while ((n = getopt(argc,argv, "hd:n:")) != -1){
 		switch(n){
 			case 'h':
@@ -55,11 +57,13 @@ int main(int argc, char** argv){
 		}
 	}
 
+    // Si se pasa la opcion h no deben haber mas opciones
 	if ((hflag == 1) && (argc > 2)) {
 		fprintf(stderr, "La opcion '-h' es excluyactuale del resto de las opciones\n");
 		exit(1);
 	}
 
+    // Se imprimen las opcines de UsoDisco y se finaliza la ejecucion
 	if (hflag == 1){
 		printf("UsoDisco Usage:\n");
 		printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
@@ -70,12 +74,8 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 
-	// if (nvalue == 0){
-	// 	nvalue = 1;
-	// }
-
 	if (dvalue == NULL){
-		// si se toma como default el directorio actual
+		// Si dvalue es NULL se trabaja en el directorio actual
 		char directorio_actual[BUFSIZ];
 		char *cp;
 		cp = getcwd(directorio_actual, sizeof(directorio_actual));
@@ -86,15 +86,16 @@ int main(int argc, char** argv){
 		dvalue = directorio_actual;
 	}
 
-	// Se trabaja con el directorio dado
+	// dvalue no es NULL == Se trabaja con el directorio pasado por opciones
 	if (!es_directorio(dvalue))
 	{
 		printf("El argumento '%s' no es un directorio\n", dvalue);
 		exit(1);
 	}
 
-	// Archivo sobre el cual se imprimira el resultado
+	// Si no se procesaron todos los argumentos, existe un archivo de salida
 	if (optind < argc) {
+        // Archivo sobre el cual se imprimira el resultado
 		if ((salida = fopen(argv[optind], "w")) == NULL) {
 			printf("No se pudo abrir o crear el archivo: %s\n",argv[optind]);
 			exit(1);
@@ -112,12 +113,16 @@ int main(int argc, char** argv){
 			procesar_directorio(desencolar());
 		}
 	} else {
+        // Se declaraa el arreglo de hilos
 		pthread_t arreglo_hilos[nvalue];
 		int cont = 0;
-		char *d;
+		char * path;
+
 		while (cabeza != NULL) {
-			d = desencolar();
-			pthread_create(&arreglo_hilos[cont], NULL, trabajo_de_hilo, d);
+			path = desencolar();
+            //Se crean los hilos y se les asigna un directorio (path) con el cual trabajar
+			pthread_create(&arreglo_hilos[cont], NULL, trabajo_de_hilo, path);
+            cont++;
 			numero_hilos++;
 			if (cont == nvalue) {
 				cont = 0;
@@ -131,13 +136,16 @@ int main(int argc, char** argv){
 		}
 	}
 
+    //Existe archivo de salida
 	if (optind < argc) {
+        // Se cierra el archivo una vez escrito
 		if (fclose(salida) != 0) {
 			printf("No se pudo cerrar el archivo de salida\n");
 			exit(1);
 		}
 	}
 
+    // Respuesta por stdout
 	printf("Numero de archivos encontrado: %d\n", numero_archivos);
 	printf("Numero de directorios escaneados: %d\n", numero_directorios);
 	printf("Numero de hilos creados %d\n", numero_hilos);

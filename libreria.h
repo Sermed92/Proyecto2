@@ -1,5 +1,5 @@
-#ifndef cabecera
-#define cabecera
+#ifndef libreria
+#define libreria
 
 /* Librerias */
 #include <stdio.h>
@@ -35,6 +35,7 @@ typedef struct _nodo_cola {
 	int numero_directorios;
 	int numero_hilos;
 
+// Funciones y procedimientos a utilizar
 void numeroArgumentos(int);
 int es_directorio(char*);
 void encolar(char*);
@@ -44,4 +45,4 @@ void agregar_slash(char*);
 void* trabajo_de_hilo(void*);
 char *mi_strdup(char*);
 
-#endif // !cabecera
+#endif // !libreria

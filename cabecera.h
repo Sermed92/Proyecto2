@@ -28,8 +28,12 @@ typedef struct _nodo_cola {
 	nodo_cola *cabeza;
 	nodo_cola *cola;
 
-// Archivo se salida
+// Archivo de salida
         FILE *salida;
+
+// Contadores de archivos y directorios
+	int numero_archivos;
+	int numero_directorios;
 
 void numeroArgumentos(int);
 int es_directorio(char*);
@@ -39,5 +43,7 @@ char *desencolar();
 
 void procesar_directorio(char*);
 void agregar_slash(char*);
+
+char *mi_strdup(char*);
 
 #endif // !cabecera

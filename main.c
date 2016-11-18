@@ -13,7 +13,9 @@ int main(int argc, char** argv){
 
 	int hflag = 0;
 	int nvalue = 0;
-	char *dvalue = NULL;  
+	char *dvalue = NULL;
+	numero_archivos = 0;
+	numero_directorios = 0;
 	int n;
 
 	opterr = 0;
@@ -60,22 +62,21 @@ int main(int argc, char** argv){
 
 	if (hflag == 1){
 		printf("UsoDisco Usage:\n");
-        printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
-        printf("-h: Muestra por pantalla un mensaje de ayuda, excluyactuale del resto de opciones\n");
-        printf("-n i: Nivel de concurrencia solicitado (uno por defecto)\n");
-        printf("-d directorio: directorio desde donde calcula el espacio utilizado (actual por defecto)\n");
-        printf("salida: Archivo con lista de directorios y el espacio ocupado por los archivos regulares (salida estandar por defecto)\n");
-        exit(1);
+		printf("./UsoDisco [-h] | [-n <i>] [-d <directorio>] [salida] \n");
+		printf("-h: Muestra por pantalla un mensaje de ayuda, excluyactuale del resto de opciones\n");
+		printf("-n i: Nivel de concurrencia solicitado (uno por defecto)\n");
+		printf("-d directorio: directorio desde donde calcula el espacio utilizado (actual por defecto)\n");
+		printf("salida: Archivo con lista de directorios y el espacio ocupado por los archivos regulares (salida estandar por defecto)\n");
+		exit(1);
 	}
 
-//printf("Cantidad de hilos: %i\n", nvalue);
+	//printf("Cantidad de hilos: %i\n", nvalue);
 	if (nvalue == 0){
 		nvalue = 1;
 	}
 
 	if (dvalue == NULL){
 		// si se toma como default el directorio actual
-		
 		char directorio_actual[BUFSIZ];
 		char *cp;
 		cp = getcwd(directorio_actual, sizeof(directorio_actual));
@@ -86,38 +87,40 @@ int main(int argc, char** argv){
 		dvalue = directorio_actual;
 	}
 
-	agregar_slash(dvalue);
-
 	// Se trabaja con el directorio dado
 	if (!es_directorio(dvalue))
 	{
 		printf("El argumento '%s' no es un directorio\n", dvalue);
 		exit(1);
 	}
-	else {
-		printf("El argumento '%s' si es un directorio\n", dvalue);
-	}
 
 	// Archivo sobre el cual se imprimira el resultado
-	//salida = NULL;
-	// if (argc == 4){
-	// 	//Modo write lo crea
-	// 	salida = fopen(argv[optind], "w");
-	// 	printf("abro archivo %s/n",argv[optind]);
-	// }
+	if (optind < argc) {
+		if ((salida = fopen(argv[optind], "w")) == NULL) {
+			printf("No se pudo abrir o crear el archivo: %s\n",argv[optind]);
+			exit(1);
+		}
+	}
 
 	// Aqui empieza la diversion
 	cabeza = NULL;
 	cola = NULL;
-	//dvalue = agregar_slash(dvalue);
-	printf("Trabajo con: %s\n",dvalue);
 	
 	procesar_directorio(dvalue);
-	//printf("cabeza%s\n",cabeza->directorio);
 	while (cabeza != NULL) {
 		procesar_directorio(desencolar());
 	}
 
-	return 0;
+	if (optind < argc) {
+		if (fclose(salida) != 0) {
+			printf("No se pudo cerrar el archivo de salida\n");
+			exit(1);
+		}
+	}
 
+	printf("Numero de archivos encontrado: %d\n", numero_archivos);
+	printf("Numero de directorios encontrado: %d\n", numero_directorios);
+	
+
+	return 0;
 }

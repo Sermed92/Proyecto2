@@ -20,43 +20,19 @@ int es_oculto(char *direccion) {
 
 //Funcion para determinar si un string representa un directorio
 int es_directorio(char* direccion){
-
-	// struct stat statbuf;
-
-	// if (lstat(dir, &statbuf) == 1){
-	// 	fprintf(stderr, "No se pudo aplicar stat sobre el archivo %s: %s\n", dir, strerror(errno));
-	// 	exit(1);
-	// }
-
-	// // Se verifica si es directorio
-	// if (statbuf.st_mode & S_IFDIR){
-	// 	// Es directorio
-	// 	return 1;
-	// } else {
-	// 	// No es directorio
-	// 	return 0;
-	// }
-
-	// return 0;
-	printf("Recibo %s\n", direccion);
-
-	DIR *directorio;
-	if ((directorio = opendir(direccion)) != NULL) {
-		closedir(directorio);
-		printf("Si es directorio %s\n", direccion);
-		return 1;
+	
+	struct stat buffer;
+	if (stat(direccion, &buffer)) {
+		printf("No se pudo aplicar stat sobre %s\n", direccion);
 	}
-	else {
-		return 0;
-	}
-
+	int x = S_ISDIR(buffer.st_mode);
+	return x;
 }
 
 // Procedimiento para encolar un directorio en la cola global de directorios
 void encolar(char *directorio) {
-	printf("Encole %s\n", directorio);
 	nodo_cola *nuevo_nodo = (nodo_cola*) malloc(sizeof(nodo_cola));
-	nuevo_nodo -> directorio = directorio;
+	nuevo_nodo -> directorio = strdup(directorio);
 	nuevo_nodo -> siguiente = NULL;
 
 	if (cabeza == NULL && cola == NULL) {
@@ -92,58 +68,68 @@ void agregar_slash(char *direccion) {
 	}
 }
 
-void procesar_directorio(char *direccion) {
-	//char *d = agregar_slash(direccion);
-	// char *d = direccion;
-	// agregar_slash(d);
-	// printf("Direccion: %s\n", d);
-	// DIR *directorio;
-	// struct dirent *actual;
-
-	// char *auxiliar = strdup(d);
-	// if((directorio = opendir(auxiliar)) != NULL) {
-	// 	while ((actual = readdir(directorio)) != NULL) {
-	// 		if (!es_oculto(actual -> d_name)) {
-	// 			strcat(auxiliar, actual -> d_name);
-	// 			printf("Proceso: %s\n",auxiliar);
-	// 			if (!es_directorio(auxiliar)) {
-	// 				//Se procesa el archivo cuya direccion esta en auxiliar
-	// 				printf("A: %s\n", auxiliar);
-	// 			} else {
-	// 				// Si es directorio se encola
-	// 				encolar(auxiliar);
-	// 			}
-	// 			auxiliar = strdup(d);
-	// 		}
-	// 	}
-	// closedir(directorio);
-	// } else {
-
-	// }
-
-	agregar_slash(direccion);
-
-	DIR *directorio;
-	struct dirent *actual;
-	
-	char *auxiliar = strdup(direccion);
-	
-	if ((directorio = opendir(auxiliar)) != NULL){
-		while ((actual = readdir(directorio)) != NULL){
-			if(!es_oculto(actual -> d_name)) {
-				strcat(auxiliar, actual -> d_name);
-				printf("Proceso: %s\n", auxiliar);				
-				if (!es_directorio(auxiliar)){
-					//Se procesa el archivo 
-					printf("A: %s \n", auxiliar);
-				} else {
-					//Es directorio
-					encolar(auxiliar);
-				}
-	 			auxiliar = strdup(direccion);				
-			}
-		}
-		closedir(directorio);
+char *mi_strcat(char *s1, char *s2) {
+	int n1 = strlen(s1);
+	int n2 = strlen(s2);
+	char *nuevo = (char*) malloc(sizeof(char) * (n1 + n2 + 1));
+	int i, j;
+	for (i = 0; i < n1; i++) {
+		nuevo[i] = s1[i];
 	}
+	for (j = 0; j < n2; j++, i++) {
+		nuevo[i] = s2[j];
+	}
+	nuevo[i] = '\0';
+	return nuevo;
+}
+
+void procesar_archivo(char *direccion) {
+	numero_archivos++;
+	struct stat buffer;
+	if (stat(direccion, &buffer)) {
+		printf("No se pudo aplicar stat sobre %s\n", direccion);
+	}	
+
+	if (salida == NULL){
+		printf("%i\t%s\n",(int) buffer.st_blocks ,direccion);
+	} else {
+		fprintf(salida, "%i\t%s\n",(int) buffer.st_blocks ,direccion);
+	}
+	
+}
+
+// Funcion para procesar un directorio
+void procesar_directorio(char *direccion) {
+	numero_directorios++;
+	agregar_slash(direccion);
+	struct dirent **lista;
+	char *aux;
+	aux = (char*) strdup(direccion);
+	int n = scandir(direccion, &lista, NULL, alphasort);
+	
+	if( n< 0) {
+		printf("Error al abrir directorio %s\n", direccion);
+		exit(1);
+	} else {
+		for (int i = 0; i < n; i++)
+		{
+	
+			if (!es_oculto(lista[i] -> d_name)) {
+				aux = mi_strcat(aux,lista[i] -> d_name);
+	
+				if (!es_directorio(aux)) {
+					procesar_archivo(aux);
+				} else {
+					encolar(aux);
+	
+				}
+			}
+	
+			free(lista[i]);
+			free (aux);
+			aux = (char*) strdup(direccion);
+		}
+	}
+	free(lista);
 
 }

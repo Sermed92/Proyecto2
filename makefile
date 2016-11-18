@@ -10,4 +10,4 @@ libreria.o: libreria.c cabecera.h
 	gcc -Wall -Wextra -c libreria.c
 
 clean:
-	rm -f *.o
+	rm -f *.o *.h.gch UsoDisco

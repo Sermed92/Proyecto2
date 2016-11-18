@@ -2,7 +2,6 @@
 #define cabecera
 
 /* Librerias */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,19 +30,18 @@ typedef struct _nodo_cola {
 // Archivo de salida
         FILE *salida;
 
-// Contadores de archivos y directorios
+// Contadores de archivos, directorios e hilos
 	int numero_archivos;
 	int numero_directorios;
+	int numero_hilos;
 
 void numeroArgumentos(int);
 int es_directorio(char*);
-
 void encolar(char*);
 char *desencolar();
-
 void procesar_directorio(char*);
 void agregar_slash(char*);
-
+void* trabajo_de_hilo(void*);
 char *mi_strdup(char*);
 
 #endif // !cabecera

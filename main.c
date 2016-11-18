@@ -70,10 +70,9 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 
-	//printf("Cantidad de hilos: %i\n", nvalue);
-	if (nvalue == 0){
-		nvalue = 1;
-	}
+	// if (nvalue == 0){
+	// 	nvalue = 1;
+	// }
 
 	if (dvalue == NULL){
 		// si se toma como default el directorio actual
@@ -102,13 +101,34 @@ int main(int argc, char** argv){
 		}
 	}
 
-	// Aqui empieza la diversion
 	cabeza = NULL;
 	cola = NULL;
 	
+	// Se procesa el directorio recibido en el programa principal
 	procesar_directorio(dvalue);
-	while (cabeza != NULL) {
-		procesar_directorio(desencolar());
+	if (nvalue == 0) {
+		// Si no se recibe ningun valor por el argumento n, se trabaja solo en el programa principal
+		while (cabeza != NULL) {
+			procesar_directorio(desencolar());
+		}
+	} else {
+		pthread_t arreglo_hilos[nvalue];
+		int cont = 0;
+		char *d;
+		while (cabeza != NULL) {
+			d = desencolar();
+			pthread_create(&arreglo_hilos[cont], NULL, trabajo_de_hilo, d);
+			numero_hilos++;
+			if (cont == nvalue) {
+				cont = 0;
+				for (int i = 0; i < nvalue; i++) {
+					pthread_join(arreglo_hilos[i], NULL);
+				}
+			}
+		}
+		for (int i = 0; i < nvalue; i++) {
+			pthread_join(arreglo_hilos[i], NULL);
+		}
 	}
 
 	if (optind < argc) {
@@ -119,7 +139,8 @@ int main(int argc, char** argv){
 	}
 
 	printf("Numero de archivos encontrado: %d\n", numero_archivos);
-	printf("Numero de directorios encontrado: %d\n", numero_directorios);
+	printf("Numero de directorios escaneados: %d\n", numero_directorios);
+	printf("Numero de hilos creados %d\n", numero_hilos);
 	
 
 	return 0;

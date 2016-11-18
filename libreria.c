@@ -9,6 +9,7 @@ void numeroArgumentos(int cantidad){
 	}
 }
 
+// Funcion para verificar si un arhivo es oculto
 int es_oculto(char *direccion) {
 	char *comprobante = NULL;
 	comprobante = strstr(direccion, ".");
@@ -47,10 +48,10 @@ void encolar(char *directorio) {
 
 // Funcion para desencolar un directorio de la cola global de directorios
 char *desencolar() {
-	if (cola == NULL) {
+	if (cabeza == NULL) {
 		return NULL;
 	}
-	char *directorio = cabeza -> directorio;
+	char *directorio = strdup(cabeza -> directorio);
 	nodo_cola *nodo = cabeza;
 	cabeza = cabeza -> siguiente;
 	if (cabeza == NULL) {
@@ -68,6 +69,7 @@ void agregar_slash(char *direccion) {
 	}
 }
 
+// Funcion auxiliar para concatenar dos strings
 char *mi_strcat(char *s1, char *s2) {
 	int n1 = strlen(s1);
 	int n2 = strlen(s2);
@@ -83,6 +85,7 @@ char *mi_strcat(char *s1, char *s2) {
 	return nuevo;
 }
 
+// Funcion para procesar un archivo
 void procesar_archivo(char *direccion) {
 	numero_archivos++;
 	struct stat buffer;
@@ -131,5 +134,11 @@ void procesar_directorio(char *direccion) {
 		}
 	}
 	free(lista);
+}
 
+// Funcion sobre la cual trabajaran los hilos creados
+void* trabajo_de_hilo(void *arg) {
+	char *direccion = (char*) arg;
+	procesar_directorio(direccion);
+	return NULL;
 }

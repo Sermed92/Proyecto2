@@ -126,12 +126,12 @@ int main(int argc, char** argv){
 			numero_hilos++;
 			if (cont == nvalue) {
 				cont = 0;
-				for (int i = 0; i < nvalue; i++) {
+				for (i = 0; i < nvalue; i++) {
 					pthread_join(arreglo_hilos[i], NULL);
 				}
 			}
 		}
-		for (int i = 0; i < nvalue; i++) {
+		for (i = 0; i < nvalue; i++) {
 			pthread_join(arreglo_hilos[i], NULL);
 		}
 	}

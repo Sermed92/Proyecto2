@@ -114,6 +114,7 @@ void procesar_directorio(char *direccion) {
 		printf("Error al abrir directorio %s\n", direccion);
 		exit(1);
 	} else {
+		int i;
 		for (i = 0; i < n; i++)
 		{
 	

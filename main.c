@@ -115,7 +115,7 @@ int main(int argc, char** argv){
 	} else {
         // Se declaraa el arreglo de hilos
 		pthread_t arreglo_hilos[nvalue];
-		int cont = 0;
+		int cont = 0, i;
 		char * path;
 
 		while (cabeza != NULL) {

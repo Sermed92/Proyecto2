@@ -15,6 +15,7 @@
 #include <ctype.h>
 #include <pthread.h>
 #include <dirent.h>
+#include <libgen.h>
 
 #define BUFSIZE 4096
 

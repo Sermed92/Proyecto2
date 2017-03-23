@@ -112,7 +112,7 @@ int procesar_archivo(char *direccion) {
 }
 
 // Funcion para procesar un directorio
-void procesar_directorio(char *direccion) {
+void procesar_directorio1(char *direccion) {
 
 	agregar_slash(direccion);
 	struct dirent **lista;
@@ -154,6 +154,32 @@ void procesar_directorio(char *direccion) {
 		printf("Hilo: %d\nDirectorio: %s\nBytes: %d\nCantidad de archivos: %d\n\n\n", (int) self, direccion, total_bytes, archivos_locales);
 	} else {
 		fprintf(salida, "Hilo %d\nDirectorio: %s\nBytes: %d\nCantidad de archivos: %d\n\n\n",(int) self, direccion, total_bytes, archivos_locales);
+	}
+}
+
+void procesar_directorio(char *direccion) {
+	agregar_slash(direccion);
+	DIR *dir;
+	struct dirent *dp;
+	char* aux;
+	aux = (char*) strdup(direccion);
+
+	if((dir = opendir(direccion)) == NULL) {
+		printf("Error! No se pudo abrir directorio: %s\n", direccion);
+		exit(1);
+	}
+
+	while ((dp = readdir(dir)) != NULL) {
+		if(!es_oculto(dp->d_name)) {
+			printf("%s\n", dp->d_name);
+			aux = mi_strcat(aux, dp->d_name);
+			printf("aux: %s\n", aux);
+			if(es_directorio(aux)) {
+				encolar(aux);
+			}
+		}
+		free(aux);
+		aux = (char*) strdup(direccion);
 	}
 }
 

@@ -112,8 +112,7 @@ int procesar_archivo(char *direccion) {
 }
 
 // Funcion para procesar un directorio
-void procesar_directorio1(char *direccion) {
-
+void procesar_directorio(char *direccion) {
 	agregar_slash(direccion);
 	struct dirent **lista;
 	char *aux;
@@ -157,7 +156,7 @@ void procesar_directorio1(char *direccion) {
 	}
 }
 
-void procesar_directorio(char *direccion) {
+void procesar_directorio1(char *direccion) {
 	agregar_slash(direccion);
 	DIR *dir;
 	struct dirent *dp;
@@ -171,9 +170,9 @@ void procesar_directorio(char *direccion) {
 
 	while ((dp = readdir(dir)) != NULL) {
 		if(!es_oculto(dp->d_name)) {
-			printf("%s\n", dp->d_name);
+			// printf("%s\n", dp->d_name);
 			aux = mi_strcat(aux, dp->d_name);
-			printf("aux: %s\n", aux);
+			// printf("aux: %s\n", aux);
 			if(es_directorio(aux)) {
 				encolar(aux);
 			}

@@ -1,7 +1,7 @@
-all: UsoDisco clean
+all: els clean
 
-UsoDisco: main.o libreria.o libreria.h
-	gcc -std=c99 -pthread -g -o UsoDisco main.o libreria.o
+els: main.o libreria.o libreria.h
+	gcc -std=c99 -pthread -g -o els main.o libreria.o
 
 main.o: main.c libreria.h
 	gcc -Wall -Wextra -g -c main.c

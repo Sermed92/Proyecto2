@@ -13,11 +13,14 @@ void numeroArgumentos(int cantidad){
 	}
 }
 
+// Funcion para manejar la opcion -h si ha sido ingresada
 void opcion_help(int h, int cantidad){
+	// Se finaliza el programa si se introdujo una opcion adicional a -h
 	if (h == 1 && cantidad > 2) {
 		printf("%s\n", MENSAJE_ERROR_AYUDA);
 		exit(1);
  	}
+	// Se imprime por salida estandar el mensaje de ayuda
 	if (h == 1) {
 		printf("%s\n",MENSAJE_AYUDA);
 		exit(0);
@@ -28,6 +31,7 @@ void opcion_help(int h, int cantidad){
 int es_oculto(char *direccion) {
 	char *comprobante = NULL;
 	comprobante = strstr(direccion, ".");
+	// Si la direccion empieza con un punto se asume que la direccion representa un enlace oculto
 	if (comprobante != direccion) {
 		return 0;
 	}
@@ -36,10 +40,11 @@ int es_oculto(char *direccion) {
 
 //Funcion para determinar si un string representa un directorio
 int es_directorio(char* direccion){
-
+	// Se utiliza stat para determinar si una direccion representa un directorio
 	struct stat buffer;
 	if (stat(direccion, &buffer)) {
 		printf("No se pudo aplicar stat sobre %s\n", direccion);
+		// exit(1);
 	}
 	int x = S_ISDIR(buffer.st_mode);
 	return x;
@@ -47,14 +52,17 @@ int es_directorio(char* direccion){
 
 // Procedimiento para encolar un directorio en la cola global de directorios
 void encolar(char *directorio) {
+	// Se reserva memoria para un nuevo nodo
 	nodo *nuevo_nodo = (nodo*) malloc(sizeof(nodo));
 	nuevo_nodo -> directorio = strdup(directorio);
 	nuevo_nodo -> siguiente = NULL;
 
+	// Se colocan tanto cabeza como cola en el nuevo nodo si ambos son nulos
 	if (cabeza == NULL && cola == NULL) {
 		cabeza = nuevo_nodo;
 		cola = cabeza;
 	}
+	// Se coloca el nuevo nodo al inicio de la cola si ya existen otros nodos
 	else {
 		cola -> siguiente = nuevo_nodo;
 		cola = nuevo_nodo;
@@ -63,6 +71,7 @@ void encolar(char *directorio) {
 
 // Funcion para desencolar un directorio de la cola global de directorios
 char *desencolar() {
+	// Se retorna NULL si la cola esta vacia
 	if (cabeza == NULL) {
 		return NULL;
 	}
@@ -72,6 +81,7 @@ char *desencolar() {
 	if (cabeza == NULL) {
 		cola = NULL;
 	}
+	// Se libera la memoria del nodo y se retorna una copia de la informacion que contenia
 	free(Head);
 	return directorio;
 }
@@ -100,28 +110,32 @@ char *mi_strcat(char *s1, char *s2) {
 	return nuevo;
 }
 
-// Funcion para procesar un archivo
+// Funcion para procesar un archivo retornando el numero de bytes que ocupa
 int procesar_archivo(char *direccion) {
-
+	// Se utiliza la funcion stat para obtener el numero de bytes de un archivo
 	struct stat buffer;
 	if (stat(direccion, &buffer)) {
 		printf("No se pudo aplicar stat sobre %s\n", direccion);
+		exit(1);
 	}
-
-	return (int) buffer.st_blocks;
+	return (int) buffer.st_size;
 }
 
 // Funcion para procesar un directorio
 void procesar_directorio(char *direccion) {
 	agregar_slash(direccion);
+	// Se utiliza la funcion dirent para recorrer el directorio recibido
 	struct dirent **lista;
+	// Se utiliza la variable aux para el manejo de strings
 	char *aux;
 	aux = (char*) strdup(direccion);
+	// En la variable n se almacena la cantidad de enlaces en la direccion
 	int n = scandir(direccion, &lista, NULL, alphasort);
+	// Se suman el total de bytes en la direccion y la cantidad de archivos locales
 	int total_bytes = 0;
 	int archivos_locales = 0;
+	// Se obtiene el identificador del hilo actual para la salida
 	pthread_t self;
-
 	self = pthread_self();
 
 	if( n< 0) {
@@ -133,22 +147,27 @@ void procesar_directorio(char *direccion) {
 		{
 
 			if (!es_oculto(lista[i] -> d_name)) {
+				// Si el enlace actual no es oculto se concatena con la direccion recibida para tener la direccion completa
 				aux = mi_strcat(aux,lista[i] -> d_name);
 
 				if (!es_directorio(aux)) {
+					// Si no es un directorio se toma su cantidad de bytes y se incrementa el contador de archivos regulares
 					total_bytes += procesar_archivo(aux);
 					archivos_locales++;
 				} else {
+					// Si es un directorio se encola en la cola de directorios por explorar
 					encolar(aux);
 				}
 			}
 
 			free(lista[i]);
 			free (aux);
+			// Se reinicia la variable aux para la siguiente iteracion
 			aux = (char*) strdup(direccion);
 		}
 	}
 	free(lista);
+	// Se imprime la salida de manera estandar o en el archivo de salida segun sea el caso
 	if (salida == NULL) {
 		printf("Hilo: %d\nDirectorio: %s\nBytes: %d\nCantidad de archivos: %d\n\n\n", (int) self, direccion, total_bytes, archivos_locales);
 	} else {
@@ -156,39 +175,15 @@ void procesar_directorio(char *direccion) {
 	}
 }
 
-void procesar_directorio1(char *direccion) {
-	agregar_slash(direccion);
-	DIR *dir;
-	struct dirent *dp;
-	char* aux;
-	aux = (char*) strdup(direccion);
-
-	if((dir = opendir(direccion)) == NULL) {
-		printf("Error! No se pudo abrir directorio: %s\n", direccion);
-		exit(1);
-	}
-
-	while ((dp = readdir(dir)) != NULL) {
-		if(!es_oculto(dp->d_name)) {
-			// printf("%s\n", dp->d_name);
-			aux = mi_strcat(aux, dp->d_name);
-			// printf("aux: %s\n", aux);
-			if(es_directorio(aux)) {
-				encolar(aux);
-			}
-		}
-		free(aux);
-		aux = (char*) strdup(direccion);
-	}
-}
-
 // Funcion sobre la cual trabajaran los hilos creados
 void* trabajo_de_hilo(void *arg) {
+	// Se castea el argumento recibido para que sea compatible con la funcion procesar_directorio
 	char *direccion = (char*) arg;
 	procesar_directorio(direccion);
 	return NULL;
 }
 
+// Funcion para crear el archivo de salida de ser necesario
 FILE *crear_salida(int posicion, int cantidad, char** argumentos) {
 	// Si no se procesaron todos los argumentos, existe un archivo de salida
 	if (posicion < cantidad) {
@@ -204,6 +199,7 @@ FILE *crear_salida(int posicion, int cantidad, char** argumentos) {
 	return salida;
 }
 
+// Procedimiento para cerrar el archivo de salida de ser necesario
 void cerrar_salida(int optind, int argc) {
 	if (optind < argc) {
         // Se cierra el archivo una vez escrito
@@ -214,14 +210,17 @@ void cerrar_salida(int optind, int argc) {
 	}
 }
 
+// Procedimiento para crear los hilos trabajadores
 void crear_hilos(int n_hilos) {
 	if (n_hilos == 0) {
 		// Si no se recibe ningun valor por el argumento n, se trabaja solo en el programa principal
 		while (cabeza != NULL) {
-			procesar_directorio(desencolar());
+			if (cabeza != NULL) {
+				procesar_directorio(desencolar());
+			}
 		}
 	} else {
-        // Se declaraa el arreglo de hilos
+        // Se declara el arreglo de hilos
 		pthread_t arreglo_hilos[n_hilos];
 		int cont = 0;
 		int i;
@@ -240,17 +239,20 @@ void crear_hilos(int n_hilos) {
 				}
 			}
 		}
+		// Se espera a que todos los hilos terminen
 		for (i = 0; i < n_hilos; i++) {
 			pthread_join(arreglo_hilos[i], NULL);
 		}
 	}
 }
 
+// Procedimiento para obtener el directorio actual de trabajo o obtener el directorio pasado por parametros
 void asignar_directorio(char **directorio) {
 	if (*directorio == NULL){
 		// Si directorio es NULL se trabaja en el directorio actual
 		char directorio_actual[BUFSIZE];
 		char *cp;
+		// Se obtiene el directorio actual de trabajo
 		cp = getcwd(directorio_actual, sizeof(directorio_actual));
 		if (cp == NULL) {
 			printf("Error obteniendo el directorio actual\n");

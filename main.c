@@ -7,11 +7,13 @@
 
 #include "libreria.h"
 
+// Funcion main del programa
 int main(int argc, char** argv){
 
     // Se verifican los argumentos
 	numeroArgumentos(argc);
 
+	// Se inicializan las variables necesarias para la captura de los argumentos
 	int hflag = 0;
 	int n_hilos = 0;
 	char *directorio = NULL;
@@ -48,8 +50,10 @@ int main(int argc, char** argv){
 	// Si se pasa la opcion h no deben haber mas opciones
     opcion_help(hflag, argc);
 
+	// Se obtiene el directorio desde donde se iniciara la exploracion
 	asignar_directorio(&directorio);
 
+	// Se inicializan las variables necesarias para la ejecucion
 	salida = crear_salida(optind, argc, argv);
 	cabeza = NULL;
 	cola = NULL;

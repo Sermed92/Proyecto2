@@ -44,7 +44,7 @@ int es_directorio(char* direccion){
 	struct stat buffer;
 	if (stat(direccion, &buffer)) {
 		printf("No se pudo aplicar stat sobre %s\n", direccion);
-		exit(1);
+		// exit(1);
 	}
 	int x = S_ISDIR(buffer.st_mode);
 	return x;
@@ -110,7 +110,7 @@ char *mi_strcat(char *s1, char *s2) {
 	return nuevo;
 }
 
-// Funcion para procesar un archivo
+// Funcion para procesar un archivo retornando el numero de bytes que ocupa
 int procesar_archivo(char *direccion) {
 	// Se utiliza la funcion stat para obtener el numero de bytes de un archivo
 	struct stat buffer;
@@ -124,14 +124,18 @@ int procesar_archivo(char *direccion) {
 // Funcion para procesar un directorio
 void procesar_directorio(char *direccion) {
 	agregar_slash(direccion);
+	// Se utiliza la funcion dirent para recorrer el directorio recibido
 	struct dirent **lista;
+	// Se utiliza la variable aux para el manejo de strings
 	char *aux;
 	aux = (char*) strdup(direccion);
+	// En la variable n se almacena la cantidad de enlaces en la direccion
 	int n = scandir(direccion, &lista, NULL, alphasort);
+	// Se suman el total de bytes en la direccion y la cantidad de archivos locales
 	int total_bytes = 0;
 	int archivos_locales = 0;
+	// Se obtiene el identificador del hilo actual para la salida
 	pthread_t self;
-
 	self = pthread_self();
 
 	if( n< 0) {
@@ -143,22 +147,27 @@ void procesar_directorio(char *direccion) {
 		{
 
 			if (!es_oculto(lista[i] -> d_name)) {
+				// Si el enlace actual no es oculto se concatena con la direccion recibida para tener la direccion completa
 				aux = mi_strcat(aux,lista[i] -> d_name);
 
 				if (!es_directorio(aux)) {
+					// Si no es un directorio se toma su cantidad de bytes y se incrementa el contador de archivos regulares
 					total_bytes += procesar_archivo(aux);
 					archivos_locales++;
 				} else {
+					// Si es un directorio se encola en la cola de directorios por explorar
 					encolar(aux);
 				}
 			}
 
 			free(lista[i]);
 			free (aux);
+			// Se reinicia la variable aux para la siguiente iteracion
 			aux = (char*) strdup(direccion);
 		}
 	}
 	free(lista);
+	// Se imprime la salida de manera estandar o en el archivo de salida segun sea el caso
 	if (salida == NULL) {
 		printf("Hilo: %d\nDirectorio: %s\nBytes: %d\nCantidad de archivos: %d\n\n\n", (int) self, direccion, total_bytes, archivos_locales);
 	} else {
@@ -166,35 +175,9 @@ void procesar_directorio(char *direccion) {
 	}
 }
 
-
-// void procesar_directorio1(char *direccion) {
-// 	agregar_slash(direccion);
-// 	DIR *dir;
-// 	struct dirent *dp;
-// 	char* aux;
-// 	aux = (char*) strdup(direccion);
-//
-// 	if((dir = opendir(direccion)) == NULL) {
-// 		printf("Error! No se pudo abrir directorio: %s\n", direccion);
-// 		exit(1);
-// 	}
-//
-// 	while ((dp = readdir(dir)) != NULL) {
-// 		if(!es_oculto(dp->d_name)) {
-// 			// printf("%s\n", dp->d_name);
-// 			aux = mi_strcat(aux, dp->d_name);
-// 			// printf("aux: %s\n", aux);
-// 			if(es_directorio(aux)) {
-// 				encolar(aux);
-// 			}
-// 		}
-// 		free(aux);
-// 		aux = (char*) strdup(direccion);
-// 	}
-// }
-
 // Funcion sobre la cual trabajaran los hilos creados
 void* trabajo_de_hilo(void *arg) {
+	// Se castea el argumento recibido para que sea compatible con la funcion procesar_directorio
 	char *direccion = (char*) arg;
 	procesar_directorio(direccion);
 	return NULL;
@@ -237,7 +220,7 @@ void crear_hilos(int n_hilos) {
 			}
 		}
 	} else {
-        // Se declaraa el arreglo de hilos
+        // Se declara el arreglo de hilos
 		pthread_t arreglo_hilos[n_hilos];
 		int cont = 0;
 		int i;
@@ -256,18 +239,20 @@ void crear_hilos(int n_hilos) {
 				}
 			}
 		}
+		// Se espera a que todos los hilos terminen
 		for (i = 0; i < n_hilos; i++) {
 			pthread_join(arreglo_hilos[i], NULL);
 		}
 	}
 }
 
-//
+// Procedimiento para obtener el directorio actual de trabajo o obtener el directorio pasado por parametros
 void asignar_directorio(char **directorio) {
 	if (*directorio == NULL){
 		// Si directorio es NULL se trabaja en el directorio actual
 		char directorio_actual[BUFSIZE];
 		char *cp;
+		// Se obtiene el directorio actual de trabajo
 		cp = getcwd(directorio_actual, sizeof(directorio_actual));
 		if (cp == NULL) {
 			printf("Error obteniendo el directorio actual\n");
